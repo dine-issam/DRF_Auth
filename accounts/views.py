@@ -2,10 +2,11 @@ from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
 
 from accounts.utils import send_code_to_user
-from .serializers import UserRegisterSerializer,LoginSerializer
+from .serializers import PasswordResetRequestSerializer, UserRegisterSerializer,LoginSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from .models import OneTimePassword
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class RegisterUserView(GenericAPIView):
@@ -48,5 +49,23 @@ class LoginUserView(GenericAPIView):
         serializer=self.serializer_class(data=request.data,context={'request':request})
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
-            
+    
+class TestAuthenticationView(GenericAPIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        data={'msg':'its works'}
+        return Response(data,status=status.HTTP_200_OK)
+
+class PasswordResetRequestView(GenericAPIView):
+    serializer_class=PasswordResetRequestSerializer
+
+    def post(self, request):
+        serializer=self.serializer_class(data=request.data, context={'request':request})
+        serializer.is_valid(raise_exception=True)
+        return Response({'message':'we have sent you a link to reset your password'}, status=status.HTTP_200_OK)
+        # return Response({'message':'user with that email does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    
 

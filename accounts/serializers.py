@@ -1,7 +1,15 @@
+from base64 import urlsafe_b64encode
+from readline import get_current_history_length
 from rest_framework import serializers
+
+from accounts.utils import send_normal_email
 from .models import User        
 from django.contrib.auth import authenticate
+from django.urls import reverse
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import smart_str, force_str, smart_bytes
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -57,5 +65,33 @@ class LoginSerializer(serializers.ModelSerializer):
             "access_token": str(user_tokens.get('access')),
             "refresh_token":str(user_tokens.get('refresh'))
         }
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255)
+
+    class Meta:
+        fields = ['email']
+
+    def validate(self, attrs):
+        
+        email = attrs.get('email')
+        if User.objects.filter(email=email).exists():
+            user= User.objects.get(email=email)
+            uidb64=urlsafe_b64encode(smart_bytes(user.id))
+            token = PasswordResetTokenGenerator().make_token(user)
+            request=self.context.get('request')
+            current_site=get_current_history_length(request).domain
+            relative_link =reverse('reset-password-confirm', kwargs={'uidb64':uidb64, 'token':token})
+            abslink=f"http://{current_site}{relative_link}"
+            print(abslink)
+            email_body=f"Hi {user.first_name} use the link below to reset your password {abslink}"
+            data={
+                'email_body':email_body, 
+                'email_subject':"Reset your Password", 
+                'to_email':user.email
+                }
+            send_normal_email(data)
+
+        return super().validate(attrs)
     
 
