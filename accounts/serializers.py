@@ -10,7 +10,6 @@ from django.urls import reverse
 from .utils import send_normal_email
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=68, min_length=6, write_only=True)
     password2= serializers.CharField(max_length=68, min_length=6, write_only=True)
@@ -66,7 +65,6 @@ class LoginSerializer(serializers.ModelSerializer):
             "refresh_token":str(tokens.get('refresh'))
         }
 
-
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
 
@@ -94,8 +92,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             send_normal_email(data)
 
         return super().validate(attrs)
-
-    
+ 
 class SetNewPasswordSerializer(serializers.Serializer):
     password=serializers.CharField(max_length=100, min_length=6, write_only=True)
     confirm_password=serializers.CharField(max_length=100, min_length=6, write_only=True)
@@ -124,8 +121,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
         except Exception as e:
             return AuthenticationFailed("link is invalid or has expired")
 
-
-    
 class LogoutUserSerializer(serializers.Serializer):
     refresh_token=serializers.CharField()
 

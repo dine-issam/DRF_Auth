@@ -1,4 +1,3 @@
-from unicodedata import name
 from django.urls import path
 from .views import (
         RegisterView, 
@@ -18,5 +17,5 @@ urlpatterns = [
     path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset'),
     path('password-reset-confirm/<uidb64>/<token>/', PasswordResetConfirm.as_view(), name='reset-password-confirm'),
     path('set-new-password/', SetNewPasswordView.as_view(), name='set-new-password'),
-    path('logout/', LogoutApiView.as_view(), name='logout')
-    ]
+    path('logout/', LogoutApiView.as_view(), name='logout'),
+        ]

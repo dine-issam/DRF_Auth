@@ -9,8 +9,10 @@ from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework.permissions import IsAuthenticated
 from .models import User
-# Create your views here.
+from rest_framework.response import Response
+from rest_framework import status
 
+# Create your views here.
 
 class RegisterView(GenericAPIView):
     serializer_class = UserRegisterSerializer
@@ -28,9 +30,6 @@ class RegisterView(GenericAPIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
 class VerifyUserEmail(GenericAPIView):
     def post(self, request):
         try:
@@ -47,14 +46,12 @@ class VerifyUserEmail(GenericAPIView):
         except OneTimePassword.DoesNotExist as identifier:
             return Response({'message':'passcode not provided'}, status=status.HTTP_400_BAD_REQUEST)
         
-
 class LoginUserView(GenericAPIView):
     serializer_class=LoginSerializer
     def post(self, request):
         serializer= self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class PasswordResetRequestView(GenericAPIView):
     serializer_class=PasswordResetRequestSerializer
@@ -64,9 +61,6 @@ class PasswordResetRequestView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         return Response({'message':'we have sent you a link to reset your password'}, status=status.HTTP_200_OK)
         # return Response({'message':'user with that email does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-    
-
-
 
 class PasswordResetConfirm(GenericAPIView):
 
@@ -89,7 +83,6 @@ class SetNewPasswordView(GenericAPIView):
         serializer=self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'success':True, 'message':"password reset is succesful"}, status=status.HTTP_200_OK)
-
 
 class TestingAuthenticatedReq(GenericAPIView):
     permission_classes=[IsAuthenticated]
